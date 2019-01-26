@@ -1,0 +1,20 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t harsh244/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run harsh244/multicont npm test -- --coverage
+
+after_success:
+  - docker build -t harsh244/multi-client ./client
+  - docker build -t harsh244/multi-nginx ./nginx
+  - docker build -t harsh244/multi-server ./server
+  - docker build -t harsh244/multi-worker ./worker
+  - echo "$DOCKER_PASS" | docker login -u "$DOCKER_ID" --password-stdin 
+  - docker push harsh244/multi-client 
+  - docker push harsh244/multi-nginx 
+  - docker push harsh244/multi-server 
+  - docker push harsh244/multi-worker
